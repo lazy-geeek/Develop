@@ -4,8 +4,6 @@
 // Input parameters
 input int LookBackPeriods = 100;
 input int TrendPeriods = 20;  // New parameter for trend calculation
-input int EMAPeriod1 = 12;    // New parameter for the first EMA
-input int EMAPeriod2 = 26;    // New parameter for the second EMA
 
 // Variables
 int lastBars = 0;
@@ -19,7 +17,6 @@ int OnInit()
    CalculateLabels();
    CalculateTrends();
    ApplyColors();
-   DrawEMAs();  // Call function to draw EMAs
    return(INIT_SUCCEEDED);
   }
 
@@ -90,16 +87,18 @@ void CalculateLabels()
 void CalculateTrends()
   {
    int bars = Bars(_Symbol, _Period);
+   if(bars < LookBackPeriods) return;
    
-   ArrayResize(candleColors, bars);
+   ArrayResize(candleColors, LookBackPeriods);
    
-   for(int i = bars - 1; i >= 0; i--)
+   for(int i = LookBackPeriods - 1; i >= 0; i--)
      {
+      double openPrice = iOpen(_Symbol, _Period, i);
       double closePrice = iClose(_Symbol, _Period, i);
       
-      if(i + TrendPeriods >= bars)
+      if(i + TrendPeriods >= LookBackPeriods)
         {
-         candleColors[i] = (iOpen(_Symbol, _Period, i) < closePrice) ? clrGreen : clrRed;
+         candleColors[i] = (openPrice < closePrice) ? clrGreen : clrRed;
          continue;
         }
       
@@ -113,8 +112,7 @@ void CalculateTrends()
 //+------------------------------------------------------------------+
 void ApplyColors()
   {
-   int bars = Bars(_Symbol, _Period);
-   for(int i = 0; i < bars; i++)
+   for(int i = 0; i < LookBackPeriods; i++)
      {
       datetime time = iTime(_Symbol, _Period, i);
       color candleColor = candleColors[i];
@@ -134,50 +132,6 @@ void ApplyColors()
   }
 
 //+------------------------------------------------------------------+
-//| Draw EMAs Function                                               |
-//+------------------------------------------------------------------+
-void DrawEMAs()
-  {
-   int bars = Bars(_Symbol, _Period);
-   double ema1[], ema2[];
-   
-   ArraySetAsSeries(ema1, true);
-   ArraySetAsSeries(ema2, true);
-   
-   if(CopyBuffer(iMA(_Symbol, _Period, EMAPeriod1, 0, MODE_EMA, PRICE_CLOSE), 0, 0, bars, ema1) <= 0) return;
-   if(CopyBuffer(iMA(_Symbol, _Period, EMAPeriod2, 0, MODE_EMA, PRICE_CLOSE), 0, 0, bars, ema2) <= 0) return;
-   
-   for(int i = 0; i < bars; i++)
-     {
-      string ema1Name = "EMA1_" + IntegerToString(i);
-      string ema2Name = "EMA2_" + IntegerToString(i);
-      
-      if(ObjectFind(ChartID(), ema1Name) < 0)
-        {
-         ObjectCreate(ChartID(), ema1Name, OBJ_TREND, 0, iTime(_Symbol, _Period, i), ema1[i]);
-         ObjectSetInteger(ChartID(), ema1Name, OBJPROP_COLOR, clrBlue);
-         ObjectSetInteger(ChartID(), ema1Name, OBJPROP_WIDTH, 2); // Set line width
-        }
-      else
-        {
-         ObjectMove(ChartID(), ema1Name, 0, iTime(_Symbol, _Period, i), ema1[i]);
-        }
-      
-      if(ObjectFind(ChartID(), ema2Name) < 0)
-        {
-         ObjectCreate(ChartID(), ema2Name, OBJ_TREND, 0, iTime(_Symbol, _Period, i), ema2[i]);
-         ObjectSetInteger(ChartID(), ema2Name, OBJPROP_COLOR, clrYellow);
-         ObjectSetInteger(ChartID(), ema2Name, OBJPROP_WIDTH, 2); // Set line width
-        }
-      else
-        {
-         ObjectMove(ChartID(), ema2Name, 0, iTime(_Symbol, _Period, i), ema2[i]);
-        }
-     }
-   ChartRedraw(); // Ensure the chart is redrawn
-  }
-
-//+------------------------------------------------------------------+
 //| Expert tick function                                             |
 //+------------------------------------------------------------------+
 void OnTick()
@@ -188,7 +142,6 @@ void OnTick()
       CalculateLabels();
       CalculateTrends();
       ApplyColors();
-      DrawEMAs();  // Update EMAs on each tick
      }
   }
 //+------------------------------------------------------------------+
