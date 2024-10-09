@@ -13,7 +13,6 @@ int lastBars = 0;
 int OnInit()
   {
    CalculateLabels();
-   CreateTrendRectangle();
    return(INIT_SUCCEEDED);
   }
 //+------------------------------------------------------------------+
@@ -23,7 +22,6 @@ void OnDeinit(const int reason)
   {
    // Delete all graphical objects
    ObjectsDeleteAll(ChartID(), 0, OBJ_TEXT);
-   ObjectsDeleteAll(ChartID(), 0, OBJ_RECTANGLE_LABEL);
   }
 //+------------------------------------------------------------------+
 //| Create Label Function                                            |
@@ -46,10 +44,6 @@ void CreateLabel(string labelName, datetime time, double price, string text, col
 //+------------------------------------------------------------------+
 void CalculateLabels()
   {
-   // Delete old labels
-
-   ObjectsDeleteAll(ChartID(), 0, OBJ_TEXT);
-
    int bars = Bars(_Symbol, _Period);
    if(bars < LookBackPeriods) return;
    
@@ -71,63 +65,6 @@ void CalculateLabels()
    lastBars = bars;
   }
 //+------------------------------------------------------------------+
-//| Create Trend Rectangle Function                                  |
-//+------------------------------------------------------------------+
-void CreateTrendRectangle()
-  {
-   string rectName = "TrendRectangle";
-   if(ObjectFind(ChartID(), rectName) < 0)
-     {
-      ObjectCreate(ChartID(), rectName, OBJ_RECTANGLE_LABEL, 0, 0, 0);
-      ObjectSetInteger(ChartID(), rectName, OBJPROP_XDISTANCE, 0);
-      ObjectSetInteger(ChartID(), rectName, OBJPROP_YDISTANCE, 20);
-      ObjectSetInteger(ChartID(), rectName, OBJPROP_XSIZE, ChartGetInteger(ChartID(), CHART_WIDTH_IN_PIXELS));
-      ObjectSetInteger(ChartID(), rectName, OBJPROP_YSIZE, 20);
-      ObjectSetInteger(ChartID(), rectName, OBJPROP_BGCOLOR, clrGreen);
-      ObjectSetInteger(ChartID(), rectName, OBJPROP_BORDER_TYPE, BORDER_FLAT);
-      ObjectSetInteger(ChartID(), rectName, OBJPROP_COLOR, clrBlack);
-      ObjectSetInteger(ChartID(), rectName, OBJPROP_WIDTH, 1);
-      ObjectSetInteger(ChartID(), rectName, OBJPROP_CORNER, CORNER_LEFT_LOWER);
-      ObjectSetInteger(ChartID(), rectName, OBJPROP_BACK, false);
-      ObjectSetInteger(ChartID(), rectName, OBJPROP_SELECTABLE, false);
-      ObjectSetInteger(ChartID(), rectName, OBJPROP_SELECTED, false);
-     }
-  }
-//+------------------------------------------------------------------+
-//| Update Trend Rectangle Function                                  |
-//+------------------------------------------------------------------+
-void UpdateTrendRectangle(bool uptrend)
-  {
-   string rectName = "TrendRectangle";
-   if(ObjectFind(ChartID(), rectName) >= 0)
-     {
-      ObjectSetInteger(ChartID(), rectName, OBJPROP_BGCOLOR, uptrend ? clrGreen : clrRed);
-     }
-  }
-//+------------------------------------------------------------------+
-//| Check Trend Function                                             |
-//+------------------------------------------------------------------+
-bool CheckTrend()
-  {
-   int bars = Bars(_Symbol, _Period);
-   if(bars < 3) return false;
-   
-   double lastHigh = iHigh(_Symbol, _Period, 1);
-   double prevHigh = iHigh(_Symbol, _Period, 2);
-   double lastLow = iLow(_Symbol, _Period, 1);
-   double prevLow = iLow(_Symbol, _Period, 2);
-   
-   bool uptrend = (lastHigh > prevHigh) && (lastLow > prevLow);
-   bool downtrend = (lastHigh < prevHigh) && (lastLow < prevLow);
-   
-   if(uptrend || downtrend)
-     {
-      UpdateTrendRectangle(uptrend);
-      return true;
-     }
-   return false;
-  }
-//+------------------------------------------------------------------+
 //| Expert tick function                                             |
 //+------------------------------------------------------------------+
 void OnTick()
@@ -136,6 +73,6 @@ void OnTick()
    if(currentBars > lastBars)
      {
       CalculateLabels();
-      CheckTrend();
      }
   }
+//+------------------------------------------------------------------+
