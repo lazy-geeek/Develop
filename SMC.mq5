@@ -87,18 +87,16 @@ void CalculateLabels()
 void CalculateTrends()
   {
    int bars = Bars(_Symbol, _Period);
-   if(bars < LookBackPeriods) return;
    
-   ArrayResize(candleColors, LookBackPeriods);
+   ArrayResize(candleColors, bars);
    
-   for(int i = LookBackPeriods - 1; i >= 0; i--)
+   for(int i = bars - 1; i >= 0; i--)
      {
-      double openPrice = iOpen(_Symbol, _Period, i);
       double closePrice = iClose(_Symbol, _Period, i);
       
-      if(i + TrendPeriods >= LookBackPeriods)
+      if(i + TrendPeriods >= bars)
         {
-         candleColors[i] = (openPrice < closePrice) ? clrGreen : clrRed;
+         candleColors[i] = (iOpen(_Symbol, _Period, i) < closePrice) ? clrGreen : clrRed;
          continue;
         }
       
@@ -112,7 +110,8 @@ void CalculateTrends()
 //+------------------------------------------------------------------+
 void ApplyColors()
   {
-   for(int i = 0; i < LookBackPeriods; i++)
+   int bars = Bars(_Symbol, _Period);
+   for(int i = 0; i < bars; i++)
      {
       datetime time = iTime(_Symbol, _Period, i);
       color candleColor = candleColors[i];
