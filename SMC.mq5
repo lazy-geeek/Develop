@@ -4,14 +4,12 @@
 // Input parameters
 input int LookBackPeriods = 100;
 input int TrendPeriods = 20;  // New parameter for trend calculation
-input int FastEMAPeriod = 14; // Period for fast EMA
-input int SlowEMAPeriod = 50; // Period for slow EMA
+input int EMAPeriod1 = 12;    // New parameter for the first EMA
+input int EMAPeriod2 = 26;    // New parameter for the second EMA
 
 // Variables
 int lastBars = 0;
 color candleColors[];
-int fastEMAHandle;
-int slowEMAHandle;
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -21,17 +19,7 @@ int OnInit()
    CalculateLabels();
    CalculateTrends();
    ApplyColors();
-   
-   // Create EMA indicator handles
-   fastEMAHandle = iMA(_Symbol, _Period, FastEMAPeriod, 0, MODE_EMA, PRICE_CLOSE);
-   slowEMAHandle = iMA(_Symbol, _Period, SlowEMAPeriod, 0, MODE_EMA, PRICE_CLOSE);
-   
-   if(fastEMAHandle == INVALID_HANDLE || slowEMAHandle == INVALID_HANDLE)
-     {
-      Print("Failed to create EMA indicators");
-      return INIT_FAILED;
-     }
-   
+   DrawEMAs();  // Call function to draw EMAs
    return(INIT_SUCCEEDED);
   }
 
@@ -51,10 +39,6 @@ void OnDeinit(const int reason)
    ChartSetInteger(ChartID(), CHART_COLOR_CHART_LINE, clrBlack);
    ChartSetInteger(ChartID(), CHART_SHOW_GRID, true);
    ChartSetInteger(ChartID(), CHART_SHOW_VOLUMES, false);
-   
-   // Release indicator handles
-   IndicatorRelease(fastEMAHandle);
-   IndicatorRelease(slowEMAHandle);
   }
 
 //+------------------------------------------------------------------+
@@ -150,40 +134,52 @@ void ApplyColors()
   }
 
 //+------------------------------------------------------------------+
-//| Expert tick function                                             |
+//| Draw EMAs Function                                               |
 //+------------------------------------------------------------------+
-//+------------------------------------------------------------------+
-//| Draw Moving Averages Function                                    |
-//+------------------------------------------------------------------+
-void DrawMovingAverages()
+void DrawEMAs()
   {
    int bars = Bars(_Symbol, _Period);
-   double fastEMABuffer[];
-   double slowEMABuffer[];
+   double ema1[], ema2[];
    
-   ArraySetAsSeries(fastEMABuffer, true);
-   ArraySetAsSeries(slowEMABuffer, true);
+   ArraySetAsSeries(ema1, true);
+   ArraySetAsSeries(ema2, true);
    
-   CopyBuffer(fastEMAHandle, 0, 0, bars, fastEMABuffer);
-   CopyBuffer(slowEMAHandle, 0, 0, bars, slowEMABuffer);
+   if(CopyBuffer(iMA(_Symbol, _Period, EMAPeriod1, 0, MODE_EMA, PRICE_CLOSE), 0, 0, bars, ema1) <= 0) return;
+   if(CopyBuffer(iMA(_Symbol, _Period, EMAPeriod2, 0, MODE_EMA, PRICE_CLOSE), 0, 0, bars, ema2) <= 0) return;
    
-   // Create or update Fast EMA line
-   ObjectDelete(ChartID(), "FastEMA");
-   ObjectCreate(ChartID(), "FastEMA", OBJ_TREND, 0, iTime(_Symbol, _Period, bars-1), fastEMABuffer[bars-1], iTime(_Symbol, _Period, 0), fastEMABuffer[0]);
-   ObjectSetInteger(ChartID(), "FastEMA", OBJPROP_COLOR, clrBlue);
-   ObjectSetInteger(ChartID(), "FastEMA", OBJPROP_WIDTH, 1);
-   ObjectSetInteger(ChartID(), "FastEMA", OBJPROP_RAY_RIGHT, false);
-   
-   // Create or update Slow EMA line
-   ObjectDelete(ChartID(), "SlowEMA");
-   ObjectCreate(ChartID(), "SlowEMA", OBJ_TREND, 0, iTime(_Symbol, _Period, bars-1), slowEMABuffer[bars-1], iTime(_Symbol, _Period, 0), slowEMABuffer[0]);
-   ObjectSetInteger(ChartID(), "SlowEMA", OBJPROP_COLOR, clrYellow);
-   ObjectSetInteger(ChartID(), "SlowEMA", OBJPROP_WIDTH, 1);
-   ObjectSetInteger(ChartID(), "SlowEMA", OBJPROP_RAY_RIGHT, false);
-   
-   ChartRedraw();
+   for(int i = 0; i < bars; i++)
+     {
+      string ema1Name = "EMA1_" + IntegerToString(i);
+      string ema2Name = "EMA2_" + IntegerToString(i);
+      
+      if(ObjectFind(ChartID(), ema1Name) < 0)
+        {
+         ObjectCreate(ChartID(), ema1Name, OBJ_TREND, 0, iTime(_Symbol, _Period, i), ema1[i]);
+         ObjectSetInteger(ChartID(), ema1Name, OBJPROP_COLOR, clrBlue);
+         ObjectSetInteger(ChartID(), ema1Name, OBJPROP_WIDTH, 2); // Set line width
+        }
+      else
+        {
+         ObjectMove(ChartID(), ema1Name, 0, iTime(_Symbol, _Period, i), ema1[i]);
+        }
+      
+      if(ObjectFind(ChartID(), ema2Name) < 0)
+        {
+         ObjectCreate(ChartID(), ema2Name, OBJ_TREND, 0, iTime(_Symbol, _Period, i), ema2[i]);
+         ObjectSetInteger(ChartID(), ema2Name, OBJPROP_COLOR, clrYellow);
+         ObjectSetInteger(ChartID(), ema2Name, OBJPROP_WIDTH, 2); // Set line width
+        }
+      else
+        {
+         ObjectMove(ChartID(), ema2Name, 0, iTime(_Symbol, _Period, i), ema2[i]);
+        }
+     }
+   ChartRedraw(); // Ensure the chart is redrawn
   }
 
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
 void OnTick()
   {
    int currentBars = Bars(_Symbol, _Period);
@@ -192,8 +188,7 @@ void OnTick()
       CalculateLabels();
       CalculateTrends();
       ApplyColors();
+      DrawEMAs();  // Update EMAs on each tick
      }
-   DrawMovingAverages();
-   lastBars = currentBars;
   }
 //+------------------------------------------------------------------+
