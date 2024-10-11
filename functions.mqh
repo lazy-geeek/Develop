@@ -46,26 +46,45 @@ void CalculateHighLow(int lookBackPeriodsHighLow)
 //+------------------------------------------------------------------+
 //| Calculate Trends Function                                        |
 //+------------------------------------------------------------------+
-void CalculateTrends(int lookbackBars, int trendPeriods, color &candleColorArray[])
+void CalculateTrends(int lookbackBars, int ema1Handle, int ema2Handle, color &candleColorArray[])
   {
    int bars = Bars(_Symbol, _Period);
    if(bars < lookbackBars) return;
    
    ArrayResize(candleColorArray, lookbackBars);
    
+   double ema1Buffer[], ema2Buffer[];
+   ArraySetAsSeries(ema1Buffer, true);
+   ArraySetAsSeries(ema2Buffer, true);
+   
+   if(CopyBuffer(ema1Handle, 0, 0, lookbackBars, ema1Buffer) != lookbackBars ||
+      CopyBuffer(ema2Handle, 0, 0, lookbackBars, ema2Buffer) != lookbackBars)
+     {
+      Print("Failed to copy EMA data");
+      return;
+     }
+   
+   bool isUptrend = false;
+   
    for(int i = lookbackBars - 1; i >= 0; i--)
      {
-      double openPrice = iOpen(_Symbol, _Period, i);
-      double closePrice = iClose(_Symbol, _Period, i);
-      
-      if(i + trendPeriods >= EMALookbackBars)
+      if(i == lookbackBars - 1)
         {
-         candleColorArray[i] = (openPrice < closePrice) ? clrGreen : clrRed;
-         continue;
+         isUptrend = (ema1Buffer[i] > ema2Buffer[i]);
+        }
+      else
+        {
+         if(ema1Buffer[i] > ema2Buffer[i] && ema1Buffer[i+1] <= ema2Buffer[i+1])
+           {
+            isUptrend = true;
+           }
+         else if(ema1Buffer[i] < ema2Buffer[i] && ema1Buffer[i+1] >= ema2Buffer[i+1])
+           {
+            isUptrend = false;
+           }
         }
       
-      double startPrice = iClose(_Symbol, _Period, i + trendPeriods);
-      candleColorArray[i] = (startPrice < closePrice) ? clrGreen : clrRed;
+      candleColorArray[i] = isUptrend ? clrGreen : clrRed;
      }
   }
 

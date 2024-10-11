@@ -1,11 +1,10 @@
 #include "functions.mqh"
 
 // Version number
-#property version "1.02"
+#property version "1.03"
 
 // Input parameters
 input int LookBackPeriodsHighLow = 100; // High / Low lookback period
-input int TrendPeriods = 20;  // New parameter for trend calculation
 input int EMA1Periods = 50;   // Periods for the first EMA
 input int EMA2Periods = 200;  // Periods for the second EMA
 input int EMALookbackBars = 5000; // Bars backwards for EMA calculation
@@ -22,8 +21,6 @@ int OnInit()
   {
    DeleteOldLabels();
    CalculateHighLow(LookBackPeriodsHighLow);
-   CalculateTrends(EMALookbackBars, TrendPeriods, candleColors);
-   ApplyColors(EMALookbackBars, candleColors);
    
    // Initialize EMA handles and draw EMAs
    EMA1Handle = iMA(_Symbol, _Period, EMA1Periods, 0, MODE_EMA, PRICE_CLOSE);
@@ -34,6 +31,9 @@ int OnInit()
       Print("Failed to create EMA indicators");
       return(INIT_FAILED);
      }
+   
+   CalculateTrends(EMALookbackBars, EMA1Handle, EMA2Handle, candleColors);
+   ApplyColors(EMALookbackBars, candleColors);
    
    CleanupEMAObjects();
    DrawEMAs(EMA1Handle, EMA2Handle, EMALookbackBars);
@@ -73,7 +73,7 @@ void OnTick()
      {
       DeleteOldLabels();
       CalculateHighLow(LookBackPeriodsHighLow);
-      CalculateTrends(EMALookbackBars, TrendPeriods, candleColors);
+      CalculateTrends(EMALookbackBars, EMA1Handle, EMA2Handle, candleColors);
       ApplyColors(EMALookbackBars, candleColors);
       CleanupEMAObjects();
       DrawEMAs(EMA1Handle, EMA2Handle, EMALookbackBars);
