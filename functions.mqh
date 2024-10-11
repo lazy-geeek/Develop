@@ -21,7 +21,7 @@ void CreateLabel(string labelName, datetime time, double price, string text, col
 void CalculateHighLow(int lookBackPeriodsHighLow)
   {
    int bars = Bars(_Symbol, _Period);
-   if(bars < lookBackPeriodsHighLow) return;
+   if(bars < EMALookbackBars) return;
    
    // Delete old labels
    ObjectsDeleteAll(ChartID(), "HighLabel_");
@@ -46,19 +46,19 @@ void CalculateHighLow(int lookBackPeriodsHighLow)
 //+------------------------------------------------------------------+
 //| Calculate Trends Function                                        |
 //+------------------------------------------------------------------+
-void CalculateTrends(int lookBackPeriodsHighLow, int trendPeriods, color &candleColorArray[])
+void CalculateTrends(int EMALookbackBars, int trendPeriods, color &candleColorArray[])
   {
    int bars = Bars(_Symbol, _Period);
-   if(bars < lookBackPeriodsHighLow) return;
+   if(bars < EMALookbackBars) return;
    
-   ArrayResize(candleColorArray, lookBackPeriodsHighLow);
+   ArrayResize(candleColorArray, EMALookbackBars);
    
-   for(int i = lookBackPeriodsHighLow - 1; i >= 0; i--)
+   for(int i = EMALookbackBars - 1; i >= 0; i--)
      {
       double openPrice = iOpen(_Symbol, _Period, i);
       double closePrice = iClose(_Symbol, _Period, i);
       
-      if(i + trendPeriods >= lookBackPeriodsHighLow)
+      if(i + trendPeriods >= EMALookbackBars)
         {
          candleColorArray[i] = (openPrice < closePrice) ? clrGreen : clrRed;
          continue;
@@ -72,9 +72,9 @@ void CalculateTrends(int lookBackPeriodsHighLow, int trendPeriods, color &candle
 //+------------------------------------------------------------------+
 //| Apply Colors Function                                            |
 //+------------------------------------------------------------------+
-void ApplyColors(int lookBackPeriodsHighLow, color &candleColorArray[])
+void ApplyColors(int EMALookbackBars, color &candleColorArray[])
   {
-   for(int i = 0; i < lookBackPeriodsHighLow; i++)
+   for(int i = 0; i < EMALookbackBars; i++)
      {
       datetime time = iTime(_Symbol, _Period, i);
       color candleColor = candleColorArray[i];

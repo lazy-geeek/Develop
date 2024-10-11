@@ -22,8 +22,8 @@ int OnInit()
   {
    DeleteOldLabels();
    CalculateHighLow(LookBackPeriodsHighLow);
-   CalculateTrends(LookBackPeriodsHighLow, TrendPeriods, candleColors);
-   ApplyColors(LookBackPeriodsHighLow, candleColors);
+   CalculateTrends(EMALookbackBars, TrendPeriods, candleColors);
+   ApplyColors(EMALookbackBars, candleColors);
    
    // Initialize EMA handles and draw EMAs
    EMA1Handle = iMA(_Symbol, _Period, EMA1Periods, 0, MODE_EMA, PRICE_CLOSE);
@@ -73,8 +73,8 @@ void OnTick()
      {
       DeleteOldLabels();
       CalculateHighLow(LookBackPeriodsHighLow);
-      CalculateTrends(LookBackPeriodsHighLow, TrendPeriods, candleColors);
-      ApplyColors(LookBackPeriodsHighLow, candleColors);
+      CalculateTrends(EMALookbackBars, TrendPeriods, candleColors);
+      ApplyColors(EMALookbackBars, candleColors);
       CleanupEMAObjects();
       DrawEMAs(EMA1Handle, EMA2Handle, EMALookbackBars);
      }   
