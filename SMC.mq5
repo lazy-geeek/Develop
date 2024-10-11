@@ -6,6 +6,7 @@ input int LookBackPeriods = 100; // High / Low lookback period
 input int TrendPeriods = 20;  // New parameter for trend calculation
 input int EMA1Periods = 50;   // Periods for the first EMA
 input int EMA2Periods = 200;  // Periods for the second EMA
+input int EMALookbackBars = 500; // Bars backwards for EMA calculation
 
 // Variables
 int lastBars = 0;
@@ -155,7 +156,7 @@ void ApplyColors()
 void DrawEMAs()
   {
    int bars = Bars(_Symbol, _Period);
-   int limit = bars;
+   int limit = MathMin(bars, EMALookbackBars);
    
    double ema1Buffer[], ema2Buffer[];
    ArraySetAsSeries(ema1Buffer, true);
