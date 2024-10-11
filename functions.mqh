@@ -18,7 +18,7 @@ void CreateLabel(string labelName, datetime time, double price, string text, col
 //+------------------------------------------------------------------+
 //| Calculate Labels Function                                        |
 //+------------------------------------------------------------------+
-void CalculateLabels(int lookBackPeriodsHighLow)
+void CalculateHighLow(int lookBackPeriodsHighLow)
   {
    int bars = Bars(_Symbol, _Period);
    if(bars < lookBackPeriodsHighLow) return;

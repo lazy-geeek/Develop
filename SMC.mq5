@@ -21,7 +21,7 @@ int EMA1Handle, EMA2Handle;
 int OnInit()
   {
    DeleteOldLabels();
-   CalculateLabels(LookBackPeriodsHighLow);
+   CalculateHighLow(LookBackPeriodsHighLow);
    CalculateTrends(LookBackPeriodsHighLow, TrendPeriods, candleColors);
    ApplyColors(LookBackPeriodsHighLow, candleColors);
    
@@ -72,7 +72,7 @@ void OnTick()
    if(currentBars > lastBars)
      {
       DeleteOldLabels();
-      CalculateLabels(LookBackPeriodsHighLow);
+      CalculateHighLow(LookBackPeriodsHighLow);
       CalculateTrends(LookBackPeriodsHighLow, TrendPeriods, candleColors);
       ApplyColors(LookBackPeriodsHighLow, candleColors);
       CleanupEMAObjects();
