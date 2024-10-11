@@ -18,17 +18,17 @@ void CreateLabel(string labelName, datetime time, double price, string text, col
 //+------------------------------------------------------------------+
 //| Calculate Labels Function                                        |
 //+------------------------------------------------------------------+
-void CalculateLabels(int lookBackPeriods)
+void CalculateLabels(int lookBackPeriodsHighLow)
   {
    int bars = Bars(_Symbol, _Period);
-   if(bars < lookBackPeriods) return;
+   if(bars < lookBackPeriodsHighLow) return;
    
    // Delete old labels
    ObjectsDeleteAll(ChartID(), "HighLabel_");
    ObjectsDeleteAll(ChartID(), "LowLabel_");
    
-   int highIndex = iHighest(_Symbol, _Period, MODE_HIGH, lookBackPeriods, 1);
-   int lowIndex = iLowest(_Symbol, _Period, MODE_LOW, lookBackPeriods, 1);
+   int highIndex = iHighest(_Symbol, _Period, MODE_HIGH, lookBackPeriodsHighLow, 1);
+   int lowIndex = iLowest(_Symbol, _Period, MODE_LOW, lookBackPeriodsHighLow, 1);
    
    double lastHigh = iHigh(_Symbol, _Period, highIndex);
    double lastLow = iLow(_Symbol, _Period, lowIndex);
@@ -46,19 +46,19 @@ void CalculateLabels(int lookBackPeriods)
 //+------------------------------------------------------------------+
 //| Calculate Trends Function                                        |
 //+------------------------------------------------------------------+
-void CalculateTrends(int lookBackPeriods, int trendPeriods, color &candleColorArray[])
+void CalculateTrends(int lookBackPeriodsHighLow, int trendPeriods, color &candleColorArray[])
   {
    int bars = Bars(_Symbol, _Period);
-   if(bars < lookBackPeriods) return;
+   if(bars < lookBackPeriodsHighLow) return;
    
-   ArrayResize(candleColorArray, lookBackPeriods);
+   ArrayResize(candleColorArray, lookBackPeriodsHighLow);
    
-   for(int i = lookBackPeriods - 1; i >= 0; i--)
+   for(int i = lookBackPeriodsHighLow - 1; i >= 0; i--)
      {
       double openPrice = iOpen(_Symbol, _Period, i);
       double closePrice = iClose(_Symbol, _Period, i);
       
-      if(i + trendPeriods >= lookBackPeriods)
+      if(i + trendPeriods >= lookBackPeriodsHighLow)
         {
          candleColorArray[i] = (openPrice < closePrice) ? clrGreen : clrRed;
          continue;
@@ -72,9 +72,9 @@ void CalculateTrends(int lookBackPeriods, int trendPeriods, color &candleColorAr
 //+------------------------------------------------------------------+
 //| Apply Colors Function                                            |
 //+------------------------------------------------------------------+
-void ApplyColors(int lookBackPeriods, color &candleColorArray[])
+void ApplyColors(int lookBackPeriodsHighLow, color &candleColorArray[])
   {
-   for(int i = 0; i < lookBackPeriods; i++)
+   for(int i = 0; i < lookBackPeriodsHighLow; i++)
      {
       datetime time = iTime(_Symbol, _Period, i);
       color candleColor = candleColorArray[i];
