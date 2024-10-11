@@ -22,7 +22,7 @@ int OnInit()
    CalculateTrends();
    ApplyColors();
    
-   // Initialize EMA handles
+   // Initialize EMA handles and draw EMAs
    EMA1Handle = iMA(_Symbol, _Period, EMA1Periods, 0, MODE_EMA, PRICE_CLOSE);
    EMA2Handle = iMA(_Symbol, _Period, EMA2Periods, 0, MODE_EMA, PRICE_CLOSE);
    
@@ -31,6 +31,9 @@ int OnInit()
       Print("Failed to create EMA indicators");
       return(INIT_FAILED);
      }
+   
+   CleanupEMAObjects();
+   DrawEMAs();
    
    return(INIT_SUCCEEDED);
   }
@@ -222,11 +225,9 @@ void OnTick()
       CalculateLabels();
       CalculateTrends();
       ApplyColors();
-     }
-   
-   // Always redraw EMAs
-   CleanupEMAObjects();
-   DrawEMAs();
+      CleanupEMAObjects();
+      DrawEMAs();
+     }   
    
    lastBars = currentBars;
   }
