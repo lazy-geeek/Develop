@@ -46,14 +46,14 @@ void CalculateHighLow(int lookBackPeriodsHighLow)
 //+------------------------------------------------------------------+
 //| Calculate Trends Function                                        |
 //+------------------------------------------------------------------+
-void CalculateTrends(int EMALookbackBars, int trendPeriods, color &candleColorArray[])
+void CalculateTrends(int lookbackBars, int trendPeriods, color &candleColorArray[])
   {
    int bars = Bars(_Symbol, _Period);
-   if(bars < EMALookbackBars) return;
+   if(bars < lookbackBars) return;
    
-   ArrayResize(candleColorArray, EMALookbackBars);
+   ArrayResize(candleColorArray, lookbackBars);
    
-   for(int i = EMALookbackBars - 1; i >= 0; i--)
+   for(int i = lookbackBars - 1; i >= 0; i--)
      {
       double openPrice = iOpen(_Symbol, _Period, i);
       double closePrice = iClose(_Symbol, _Period, i);
@@ -72,9 +72,9 @@ void CalculateTrends(int EMALookbackBars, int trendPeriods, color &candleColorAr
 //+------------------------------------------------------------------+
 //| Apply Colors Function                                            |
 //+------------------------------------------------------------------+
-void ApplyColors(int EMALookbackBars, color &candleColorArray[])
+void ApplyColors(int lookbackBars, color &candleColorArray[])
   {
-   for(int i = 0; i < EMALookbackBars; i++)
+   for(int i = 0; i < lookbackBars; i++)
      {
       datetime time = iTime(_Symbol, _Period, i);
       color candleColor = candleColorArray[i];
