@@ -20,6 +20,7 @@ int EMA1Handle, EMA2Handle;
 //+------------------------------------------------------------------+
 int OnInit()
   {
+   DeleteOldLabels();
    CalculateLabels(LookBackPeriods);
    CalculateTrends(LookBackPeriods, TrendPeriods, candleColors);
    ApplyColors(LookBackPeriods, candleColors);
@@ -70,6 +71,7 @@ void OnTick()
    int currentBars = Bars(_Symbol, _Period);
    if(currentBars > lastBars)
      {
+      DeleteOldLabels();
       CalculateLabels(LookBackPeriods);
       CalculateTrends(LookBackPeriods, TrendPeriods, candleColors);
       ApplyColors(LookBackPeriods, candleColors);

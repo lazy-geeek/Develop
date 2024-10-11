@@ -23,6 +23,10 @@ void CalculateLabels(int lookBackPeriods)
    int bars = Bars(_Symbol, _Period);
    if(bars < lookBackPeriods) return;
    
+   // Delete old labels
+   ObjectsDeleteAll(ChartID(), "HighLabel_");
+   ObjectsDeleteAll(ChartID(), "LowLabel_");
+   
    int highIndex = iHighest(_Symbol, _Period, MODE_HIGH, lookBackPeriods, 1);
    int lowIndex = iLowest(_Symbol, _Period, MODE_LOW, lookBackPeriods, 1);
    
@@ -145,4 +149,13 @@ void CleanupEMAObjects()
   {
    ObjectsDeleteAll(ChartID(), "EMA1_");
    ObjectsDeleteAll(ChartID(), "EMA2_");
+  }
+
+//+------------------------------------------------------------------+
+//| Delete Old Labels Function                                       |
+//+------------------------------------------------------------------+
+void DeleteOldLabels()
+  {
+   ObjectsDeleteAll(ChartID(), "HighLabel_");
+   ObjectsDeleteAll(ChartID(), "LowLabel_");
   }
