@@ -53,7 +53,7 @@ void CalculateTrends(int lookbackBars, int ema1Handle, int ema2Handle, color &ca
    
    ArrayResize(candleColorArray, lookbackBars);
    
-   double ema1Buffer[], ema2Buffer[];
+   double ema1Buffer[], ema2Buffer[], ema3Buffer[];
    ArraySetAsSeries(ema1Buffer, true);
    ArraySetAsSeries(ema2Buffer, true);
    
@@ -115,17 +115,19 @@ void ApplyColors(int lookbackBars, color &candleColorArray[])
 //+------------------------------------------------------------------+
 //| Draw EMAs Function                                               |
 //+------------------------------------------------------------------+
-void DrawEMAs(int ema1Handle, int ema2Handle, int emaLookbackBars)
+void DrawEMAs(int ema1Handle, int ema2Handle, int ema3Handle, int emaLookbackBars)
   {
    int bars = Bars(_Symbol, _Period);
    int limit = MathMin(bars, emaLookbackBars);
    
-   double ema1Buffer[], ema2Buffer[];
+   double ema1Buffer[], ema2Buffer[], ema3Buffer[];
    ArraySetAsSeries(ema1Buffer, true);
    ArraySetAsSeries(ema2Buffer, true);
+   ArraySetAsSeries(ema3Buffer, true);
    
    if(CopyBuffer(ema1Handle, 0, 0, limit, ema1Buffer) != limit ||
-      CopyBuffer(ema2Handle, 0, 0, limit, ema2Buffer) != limit)
+      CopyBuffer(ema2Handle, 0, 0, limit, ema2Buffer) != limit ||
+      CopyBuffer(ema3Handle, 0, 0, limit, ema3Buffer) != limit)
      {
       Print("Failed to copy EMA data");
       return;
@@ -136,17 +138,20 @@ void DrawEMAs(int ema1Handle, int ema2Handle, int emaLookbackBars)
       datetime time = iTime(_Symbol, _Period, i);
       string ema1Name = "EMA1_" + IntegerToString(i);
       string ema2Name = "EMA2_" + IntegerToString(i);
+      string ema3Name = "EMA3_" + IntegerToString(i);
       
       if(i == 0 || i == limit - 1)
         {
          ObjectCreate(ChartID(), ema1Name, OBJ_TREND, 0, time, ema1Buffer[i], time, ema1Buffer[i]);
-         ObjectCreate(ChartID(), ema2Name, OBJ_TREND, 0, time, ema2Buffer[i], time, ema2Buffer[i]);
+         ObjectCreate(ChartID(), ema2Name, OBJ_TREND, 0, time, ema2Buffer[i], time, ema2Buffer[i]);         
+         ObjectCreate(ChartID(), ema3Name, OBJ_TREND, 0, time, ema3Buffer[i], time, ema3Buffer[i]);         
         }
       else
         {
          datetime prevTime = iTime(_Symbol, _Period, i + 1);
          ObjectCreate(ChartID(), ema1Name, OBJ_TREND, 0, prevTime, ema1Buffer[i + 1], time, ema1Buffer[i]);
          ObjectCreate(ChartID(), ema2Name, OBJ_TREND, 0, prevTime, ema2Buffer[i + 1], time, ema2Buffer[i]);
+         ObjectCreate(ChartID(), ema3Name, OBJ_TREND, 0, prevTime, ema3Buffer[i + 1], time, ema3Buffer[i]);
         }
       
       ObjectSetInteger(ChartID(), ema1Name, OBJPROP_COLOR, clrBlue);
@@ -156,6 +161,10 @@ void DrawEMAs(int ema1Handle, int ema2Handle, int emaLookbackBars)
       ObjectSetInteger(ChartID(), ema2Name, OBJPROP_COLOR, clrYellow);
       ObjectSetInteger(ChartID(), ema2Name, OBJPROP_WIDTH, 2);
       ObjectSetInteger(ChartID(), ema2Name, OBJPROP_RAY_RIGHT, false);
+
+      ObjectSetInteger(ChartID(), ema3Name, OBJPROP_COLOR, clrPink);
+      ObjectSetInteger(ChartID(), ema3Name, OBJPROP_WIDTH, 2);
+      ObjectSetInteger(ChartID(), ema3Name, OBJPROP_RAY_RIGHT, false);
      }
    
    ChartRedraw();
@@ -168,6 +177,7 @@ void CleanupEMAObjects()
   {
    ObjectsDeleteAll(ChartID(), "EMA1_");
    ObjectsDeleteAll(ChartID(), "EMA2_");
+   ObjectsDeleteAll(ChartID(), "EMA3_");
   }
 
 //+------------------------------------------------------------------+

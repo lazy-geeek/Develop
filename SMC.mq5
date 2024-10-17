@@ -13,7 +13,8 @@ input int EMALookbackBars = 5000; // Bars backwards for EMA calculation
 // Variables
 int lastBars = 0;
 color candleColors[];
-int EMA1Handle, EMA2Handle;
+int EMA3Periods = (EMA1Periods + EMA2Periods) / 2; // Periods for the third EMA (mean of EMA1 and EMA2)
+int EMA1Handle, EMA2Handle, EMA3Handle;
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -26,8 +27,9 @@ int OnInit()
    // Initialize EMA handles and draw EMAs
    EMA1Handle = iMA(_Symbol, _Period, EMA1Periods, 0, MODE_EMA, PRICE_CLOSE);
    EMA2Handle = iMA(_Symbol, _Period, EMA2Periods, 0, MODE_EMA, PRICE_CLOSE);
+   EMA3Handle = iMA(_Symbol, _Period, EMA3Periods, 0, MODE_EMA, PRICE_CLOSE);
    
-   if(EMA1Handle == INVALID_HANDLE || EMA2Handle == INVALID_HANDLE)
+   if(EMA1Handle == INVALID_HANDLE || EMA2Handle == INVALID_HANDLE || EMA3Handle == INVALID_HANDLE)
      {
       Print("Failed to create EMA indicators");
       return(INIT_FAILED);
@@ -39,7 +41,7 @@ int OnInit()
    if(!HideEMAs)
      {
       CleanupEMAObjects();
-      DrawEMAs(EMA1Handle, EMA2Handle, EMALookbackBars);
+      DrawEMAs(EMA1Handle, EMA2Handle, EMA3Handle, EMALookbackBars);
      }
    
    return(INIT_SUCCEEDED);
@@ -65,6 +67,7 @@ void OnDeinit(const int reason)
    // Release EMA indicator handles
    IndicatorRelease(EMA1Handle);
    IndicatorRelease(EMA2Handle);
+   IndicatorRelease(EMA3Handle);
   }
 
 //+------------------------------------------------------------------+
@@ -82,7 +85,7 @@ void OnTick()
       if(!HideEMAs)
         {
          CleanupEMAObjects();
-         DrawEMAs(EMA1Handle, EMA2Handle, EMALookbackBars);
+         DrawEMAs(EMA1Handle, EMA2Handle, EMA3Handle, EMALookbackBars);
         } 
      }  
    lastBars = currentBars;
