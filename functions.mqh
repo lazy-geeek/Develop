@@ -18,10 +18,10 @@ void CreateLabel(string labelName, datetime time, double price, string text, col
 //+------------------------------------------------------------------+
 //| Calculate Labels Function                                        |
 //+------------------------------------------------------------------+
+
 void CalculateHighLow(int lookBackPeriodsHighLow)
   {
-   int bars = Bars(_Symbol, _Period);
-   if(bars < EMALookbackBars) return;
+   int bars = Bars(_Symbol, _Period);   
    
    // Delete old labels
    ObjectsDeleteAll(ChartID(), "HighLabel_");
