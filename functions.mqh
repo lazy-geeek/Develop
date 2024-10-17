@@ -95,37 +95,20 @@ void ApplyColors(int lookbackBars, color &candleColorArray[])
   {
    for(int i = 0; i < lookbackBars; i++)
      {
-      color candleColor = candleColorArray[i];
       datetime time = iTime(_Symbol, _Period, i);
-      double open = iOpen(_Symbol, _Period, i);
-      double close = iClose(_Symbol, _Period, i);
-      double high = iHigh(_Symbol, _Period, i);
-      double low = iLow(_Symbol, _Period, i);
+      color candleColor = candleColorArray[i];
       
-      // Set individual candle color
-      string candleName = "Candle_" + IntegerToString(i);
-      if(ObjectFind(ChartID(), candleName) < 0)
-        ObjectCreate(ChartID(), candleName, OBJ_RECTANGLE, 0, time, low, time, high);
-      
-      ObjectSetInteger(ChartID(), candleName, OBJPROP_COLOR, candleColor);
-      ObjectSetInteger(ChartID(), candleName, OBJPROP_FILL, true);
-      
-      // Set candle border color
-      string candleBorderName = "CandleBorder_" + IntegerToString(i);
-      if(ObjectFind(ChartID(), candleBorderName) < 0)
-        ObjectCreate(ChartID(), candleBorderName, OBJ_RECTANGLE, 0, time, low, time, high);
-      
-      ObjectSetInteger(ChartID(), candleBorderName, OBJPROP_COLOR, candleColor);
-      ObjectSetInteger(ChartID(), candleBorderName, OBJPROP_FILL, false);
-      ObjectSetInteger(ChartID(), candleBorderName, OBJPROP_WIDTH, 1);
+      if(candleColor == clrGreen)
+        {
+         ChartSetInteger(ChartID(), CHART_COLOR_CANDLE_BULL, clrGreen);
+         ChartSetInteger(ChartID(), CHART_COLOR_CHART_UP, clrGreen);
+        }
+      else
+        {
+         ChartSetInteger(ChartID(), CHART_COLOR_CANDLE_BEAR, clrRed);
+         ChartSetInteger(ChartID(), CHART_COLOR_CHART_DOWN, clrRed);
+        }
      }
-   
-   // Set chart properties to make original candles invisible
-   ChartSetInteger(ChartID(), CHART_COLOR_CANDLE_BULL, clrNONE);
-   ChartSetInteger(ChartID(), CHART_COLOR_CANDLE_BEAR, clrNONE);
-   ChartSetInteger(ChartID(), CHART_COLOR_CHART_UP, clrNONE);
-   ChartSetInteger(ChartID(), CHART_COLOR_CHART_DOWN, clrNONE);
-   
    ChartRedraw();
   }
 

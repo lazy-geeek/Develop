@@ -58,10 +58,6 @@ void OnDeinit(const int reason)
    ChartSetInteger(ChartID(), CHART_SHOW_GRID, true);
    ChartSetInteger(ChartID(), CHART_SHOW_VOLUMES, false);
    
-   // Delete candle and border objects
-   ObjectsDeleteAll(ChartID(), "Candle_");
-   ObjectsDeleteAll(ChartID(), "CandleBorder_");
-   
    // Release EMA indicator handles
    IndicatorRelease(EMA1Handle);
    IndicatorRelease(EMA2Handle);
