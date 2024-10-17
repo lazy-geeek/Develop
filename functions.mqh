@@ -133,6 +133,7 @@ void DrawEMAs(int ema1Handle, int ema2Handle, int ema3Handle, int emaLookbackBar
       return;
      }
    
+   bool isUptrend = false;
    for(int i = 0; i < limit; i++)
      {
       datetime time = iTime(_Symbol, _Period, i);
@@ -162,9 +163,26 @@ void DrawEMAs(int ema1Handle, int ema2Handle, int ema3Handle, int emaLookbackBar
       ObjectSetInteger(ChartID(), ema2Name, OBJPROP_WIDTH, 2);
       ObjectSetInteger(ChartID(), ema2Name, OBJPROP_RAY_RIGHT, false);
 
-      ObjectSetInteger(ChartID(), ema3Name, OBJPROP_COLOR, clrPink);
+      color ema3Color = isUptrend ? clrGreen : clrRed;
+      ObjectSetInteger(ChartID(), ema3Name, OBJPROP_COLOR, ema3Color);
       ObjectSetInteger(ChartID(), ema3Name, OBJPROP_WIDTH, 2);
       ObjectSetInteger(ChartID(), ema3Name, OBJPROP_RAY_RIGHT, false);
+      
+      if(i == 0)
+        {
+         isUptrend = (ema1Buffer[i] > ema2Buffer[i]);
+        }
+      else
+        {
+         if(ema1Buffer[i] > ema2Buffer[i] && ema1Buffer[i-1] <= ema2Buffer[i-1])
+           {
+            isUptrend = true;
+           }
+         else if(ema1Buffer[i] < ema2Buffer[i] && ema1Buffer[i-1] >= ema2Buffer[i-1])
+           {
+            isUptrend = false;
+           }
+        }
      }
    
    ChartRedraw();
