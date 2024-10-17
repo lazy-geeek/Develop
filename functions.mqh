@@ -115,7 +115,7 @@ void ApplyColors(int lookbackBars, color &candleColorArray[])
 //+------------------------------------------------------------------+
 //| Draw EMAs Function                                               |
 //+------------------------------------------------------------------+
-void DrawEMAs(int ema1Handle, int ema2Handle, int ema3Handle, int emaLookbackBars)
+void DrawEMAs(int ema1Handle, int ema2Handle, int ema3Handle, int emaLookbackBars, bool hideEMAs)
   {
    int bars = Bars(_Symbol, _Period);
    int limit = MathMin(bars, emaLookbackBars);
@@ -141,28 +141,39 @@ void DrawEMAs(int ema1Handle, int ema2Handle, int ema3Handle, int emaLookbackBar
       string ema2Name = "EMA2_" + IntegerToString(i);
       string ema3Name = "EMA3_" + IntegerToString(i);
       
+      if(!hideEMAs)
+        {
+         if(i == 0 || i == limit - 1)
+           {
+            ObjectCreate(ChartID(), ema1Name, OBJ_TREND, 0, time, ema1Buffer[i], time, ema1Buffer[i]);
+            ObjectCreate(ChartID(), ema2Name, OBJ_TREND, 0, time, ema2Buffer[i], time, ema2Buffer[i]);         
+           }
+         else
+           {
+            datetime prevTime = iTime(_Symbol, _Period, i + 1);
+            ObjectCreate(ChartID(), ema1Name, OBJ_TREND, 0, prevTime, ema1Buffer[i + 1], time, ema1Buffer[i]);
+            ObjectCreate(ChartID(), ema2Name, OBJ_TREND, 0, prevTime, ema2Buffer[i + 1], time, ema2Buffer[i]);
+           }
+         
+         ObjectSetInteger(ChartID(), ema1Name, OBJPROP_COLOR, clrBlue);
+         ObjectSetInteger(ChartID(), ema1Name, OBJPROP_WIDTH, 2);
+         ObjectSetInteger(ChartID(), ema1Name, OBJPROP_RAY_RIGHT, false);
+         
+         ObjectSetInteger(ChartID(), ema2Name, OBJPROP_COLOR, clrYellow);
+         ObjectSetInteger(ChartID(), ema2Name, OBJPROP_WIDTH, 2);
+         ObjectSetInteger(ChartID(), ema2Name, OBJPROP_RAY_RIGHT, false);
+        }
+      
       if(i == 0 || i == limit - 1)
         {
-         ObjectCreate(ChartID(), ema1Name, OBJ_TREND, 0, time, ema1Buffer[i], time, ema1Buffer[i]);
-         ObjectCreate(ChartID(), ema2Name, OBJ_TREND, 0, time, ema2Buffer[i], time, ema2Buffer[i]);         
          ObjectCreate(ChartID(), ema3Name, OBJ_TREND, 0, time, ema3Buffer[i], time, ema3Buffer[i]);         
         }
       else
         {
          datetime prevTime = iTime(_Symbol, _Period, i + 1);
-         ObjectCreate(ChartID(), ema1Name, OBJ_TREND, 0, prevTime, ema1Buffer[i + 1], time, ema1Buffer[i]);
-         ObjectCreate(ChartID(), ema2Name, OBJ_TREND, 0, prevTime, ema2Buffer[i + 1], time, ema2Buffer[i]);
          ObjectCreate(ChartID(), ema3Name, OBJ_TREND, 0, prevTime, ema3Buffer[i + 1], time, ema3Buffer[i]);
         }
       
-      ObjectSetInteger(ChartID(), ema1Name, OBJPROP_COLOR, clrBlue);
-      ObjectSetInteger(ChartID(), ema1Name, OBJPROP_WIDTH, 2);
-      ObjectSetInteger(ChartID(), ema1Name, OBJPROP_RAY_RIGHT, false);
-      
-      ObjectSetInteger(ChartID(), ema2Name, OBJPROP_COLOR, clrYellow);
-      ObjectSetInteger(ChartID(), ema2Name, OBJPROP_WIDTH, 2);
-      ObjectSetInteger(ChartID(), ema2Name, OBJPROP_RAY_RIGHT, false);
-
       color ema3Color = isUptrend ? clrGreen : clrRed;
       ObjectSetInteger(ChartID(), ema3Name, OBJPROP_COLOR, ema3Color);
       ObjectSetInteger(ChartID(), ema3Name, OBJPROP_WIDTH, 2);
